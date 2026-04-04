@@ -1,5 +1,9 @@
 package com.dinosaur.infrastructure.out.persistance;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 import com.dinosaur.domain.model.Dinosaur;
@@ -21,5 +25,21 @@ public class DinosaurPersistenceAdapter implements DinosaurPersistencePort {
         DinosaurJpaEntity savedEntity = repository.save(entity);
         return InfrastructureMapper.toDomain(savedEntity);
     }
-    
+
+    @Override
+    public List<Dinosaur> findAll() {
+        List<DinosaurJpaEntity> entities = repository.findAll();
+        return entities.stream().map(InfrastructureMapper::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Dinosaur> findById(Long id) {
+        return repository.findById(id).map(InfrastructureMapper::toDomain);
+    }
+
+    @Override
+    public void delete(Dinosaur dinosaur) {
+        DinosaurJpaEntity entity = InfrastructureMapper.toEntity(dinosaur);
+        repository.delete(entity);
+    }
 }

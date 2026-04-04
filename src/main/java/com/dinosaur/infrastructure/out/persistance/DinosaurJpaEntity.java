@@ -44,6 +44,14 @@ public class DinosaurJpaEntity {
         this.status = status;
     }
 
+    public DinosaurJpaEntity(Long id, String name, String species, LocalDateTime discoveryDate, LocalDateTime extinctionDate, DinosaurStatus status) {
+        this.id = id;
+        this.name = name;
+        this.species = species;
+        this.discoveryDate = discoveryDate;
+        this.extinctionDate = extinctionDate;
+        this.status = status;
+    }
     public DinosaurJpaEntity() {
     }
 

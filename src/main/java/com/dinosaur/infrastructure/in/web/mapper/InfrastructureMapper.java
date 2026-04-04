@@ -20,7 +20,7 @@ public class InfrastructureMapper {
     }
 
     public static DinosaurJpaEntity toEntity(Dinosaur dinosaur) {
-        return new DinosaurJpaEntity(dinosaur.getName(), dinosaur.getSpecies(), dinosaur.getDiscoveryDate(),
+        return new DinosaurJpaEntity(dinosaur.getId(), dinosaur.getName(), dinosaur.getSpecies(), dinosaur.getDiscoveryDate(),
                 dinosaur.getExtinctionDate(), dinosaur.getStatus());
     }
 
