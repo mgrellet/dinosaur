@@ -1,4 +1,4 @@
-package com.dinosaur.infrastructure.in.web.config;
+package com.dinosaur.infrastructure.in.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
