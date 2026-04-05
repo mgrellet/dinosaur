@@ -14,6 +14,5 @@ public record DinosaurRequest(
     LocalDateTime discoveryDate,
     @NotNull(message = "Extinction date is mandatory")
     LocalDateTime extinctionDate,
-    @NotBlank(message = "Status is mandatory")
     String status
 ) {}

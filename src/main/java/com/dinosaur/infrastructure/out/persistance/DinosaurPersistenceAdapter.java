@@ -42,4 +42,14 @@ public class DinosaurPersistenceAdapter implements DinosaurPersistencePort {
         DinosaurJpaEntity entity = InfrastructureMapper.toEntity(dinosaur);
         repository.delete(entity);
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return repository.existsByNameIgnoreCase(name);
+    }
+
+    @Override
+    public boolean existsByNameAndIdNot(String name, Long id) {
+        return repository.existsByNameIgnoreCaseAndIdNot(name, id);
+    }
 }

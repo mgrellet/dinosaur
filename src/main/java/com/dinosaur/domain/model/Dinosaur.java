@@ -1,5 +1,7 @@
 package com.dinosaur.domain.model;
 
+import static java.util.Objects.isNull;
+
 import java.time.LocalDateTime;
 
 public class Dinosaur {
@@ -17,7 +19,7 @@ public class Dinosaur {
         this.species = species;
         this.discoveryDate = discoveryDate;
         this.extinctionDate = extinctionDate;
-        this.status = status;
+        this.status = isNull(status) ? DinosaurStatus.ALIVE : status;
     }
 
     public Dinosaur(String name, String species, LocalDateTime discoveryDate, LocalDateTime extinctionDate,
@@ -26,7 +28,7 @@ public class Dinosaur {
         this.species = species;
         this.discoveryDate = discoveryDate;
         this.extinctionDate = extinctionDate;
-        this.status = status;
+        this.status = isNull(status) ? DinosaurStatus.ALIVE : status;
     }
 
     public Long getId() {
@@ -74,7 +76,7 @@ public class Dinosaur {
     }
 
     public void setStatus(DinosaurStatus status) {
-        this.status = status;
+        this.status = isNull(status) ? DinosaurStatus.ALIVE : status;
     }
 
 }

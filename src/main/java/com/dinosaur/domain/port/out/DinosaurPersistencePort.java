@@ -10,4 +10,6 @@ public interface DinosaurPersistencePort {
     List<Dinosaur> findAll();
     Optional<Dinosaur> findById(Long id);
     void delete(Dinosaur dinosaur);
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }
