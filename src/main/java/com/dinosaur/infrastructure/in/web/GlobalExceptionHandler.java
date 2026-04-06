@@ -1,10 +1,13 @@
 package com.dinosaur.infrastructure.in.web;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import com.dinosaur.domain.exception.DinosaurAlreadyExistsException;
 import com.dinosaur.domain.exception.DinosaurInvalidDateException;
@@ -72,6 +75,21 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.name(),
                 ex.getMessage(),
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex, HttpServletRequest request) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.name(),
+                message,
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
