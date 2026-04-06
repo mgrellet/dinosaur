@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.dinosaur.domain.model.Dinosaur;
+import com.dinosaur.domain.model.DinosaurStatus;
 import com.dinosaur.domain.port.out.DinosaurPersistencePort;
 import com.dinosaur.infrastructure.in.web.mapper.InfrastructureMapper;
 
@@ -52,4 +53,13 @@ public class DinosaurPersistenceAdapter implements DinosaurPersistencePort {
     public boolean existsByNameAndIdNot(String name, Long id) {
         return repository.existsByNameIgnoreCaseAndIdNot(name, id);
     }
+
+    @Override
+    public List<Dinosaur> findAliveOrEndangered() {
+        List<DinosaurStatus> statuses = List.of(DinosaurStatus.ALIVE, DinosaurStatus.ENDANGERED);
+        List<DinosaurJpaEntity> entities = repository.findByStatusIn(statuses);
+        return entities.stream().map(InfrastructureMapper::toDomain).toList();
+    }
+
+
 }

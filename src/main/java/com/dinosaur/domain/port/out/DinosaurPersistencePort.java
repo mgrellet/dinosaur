@@ -12,4 +12,5 @@ public interface DinosaurPersistencePort {
     void delete(Dinosaur dinosaur);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
+    List<Dinosaur> findAliveOrEndangered();
 }

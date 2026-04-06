@@ -8,11 +8,13 @@ import com.dinosaur.application.port.in.DeleteDinosaurUseCase;
 import com.dinosaur.application.port.in.GetAllDinosaursUseCase;
 import com.dinosaur.application.port.in.GetDinosaurByIdUseCase;
 import com.dinosaur.application.port.in.UpdateDinosaurUseCase;
+import com.dinosaur.application.port.in.UpdateScheduledDinosaurStatusesUseCase;
 import com.dinosaur.application.service.CreateDinosaurUseCaseImpl;
 import com.dinosaur.application.service.DeleteDinosaurUseCaseImpl;
 import com.dinosaur.application.service.GetAllDinosaursUseCaseImpl;
 import com.dinosaur.application.service.GetDinosaurByIdUseCaseImpl;
 import com.dinosaur.application.service.UpdateDinosaurUseCaseImpl;
+import com.dinosaur.application.service.UpdateScheduledDinosaurStatusesUseCaseImpl;
 import com.dinosaur.domain.port.out.DinosaurPersistencePort;
 
 @Configuration
@@ -41,5 +43,10 @@ public class ApplicationConfig {
     @Bean
     public DeleteDinosaurUseCase deleteDinosaurUseCase(DinosaurPersistencePort dinosaurPersistencePort) {
         return new DeleteDinosaurUseCaseImpl(dinosaurPersistencePort);
+    }
+
+    @Bean
+    public UpdateScheduledDinosaurStatusesUseCase updateScheduledDinosaurStatusesUseCase(DinosaurPersistencePort dinosaurPersistencePort) {
+        return new UpdateScheduledDinosaurStatusesUseCaseImpl(dinosaurPersistencePort);
     }
 }
