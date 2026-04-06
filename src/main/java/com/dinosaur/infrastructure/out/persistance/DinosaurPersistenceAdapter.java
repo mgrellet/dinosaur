@@ -2,7 +2,6 @@ package com.dinosaur.infrastructure.out.persistance;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -30,7 +29,7 @@ public class DinosaurPersistenceAdapter implements DinosaurPersistencePort {
     @Override
     public List<Dinosaur> findAll() {
         List<DinosaurJpaEntity> entities = repository.findAll();
-        return entities.stream().map(InfrastructureMapper::toDomain).collect(Collectors.toList());
+        return entities.stream().map(InfrastructureMapper::toDomain).toList();
     }
 
     @Override

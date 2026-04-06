@@ -15,11 +15,12 @@ import com.dinosaur.application.service.GetAllDinosaursUseCaseImpl;
 import com.dinosaur.application.service.GetDinosaurByIdUseCaseImpl;
 import com.dinosaur.application.service.UpdateDinosaurUseCaseImpl;
 import com.dinosaur.application.service.UpdateScheduledDinosaurStatusesUseCaseImpl;
+import com.dinosaur.domain.port.out.DinosaurMessagingPort;
 import com.dinosaur.domain.port.out.DinosaurPersistencePort;
 
 @Configuration
 public class ApplicationConfig {
-    
+
     @Bean
     public CreateDinosaurUseCase createDinosaurUseCase(DinosaurPersistencePort dinosaurPersistencePort) {
         return new CreateDinosaurUseCaseImpl(dinosaurPersistencePort);
@@ -46,7 +47,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public UpdateScheduledDinosaurStatusesUseCase updateScheduledDinosaurStatusesUseCase(DinosaurPersistencePort dinosaurPersistencePort) {
-        return new UpdateScheduledDinosaurStatusesUseCaseImpl(dinosaurPersistencePort);
+    public UpdateScheduledDinosaurStatusesUseCase updateScheduledDinosaurStatusesUseCase(
+            DinosaurPersistencePort dinosaurPersistencePort, DinosaurMessagingPort dinosaurMessagingPort) {
+        return new UpdateScheduledDinosaurStatusesUseCaseImpl(dinosaurPersistencePort, dinosaurMessagingPort);
     }
 }

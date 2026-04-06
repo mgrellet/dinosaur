@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 
@@ -63,7 +62,7 @@ public class DinosaurController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<DinosaurResponse>> getAll() {
         List<DinosaurResult> results = getAllDinosaursUseCase.execute();
-        return ResponseEntity.ok(results.stream().map(InfrastructureMapper::toResponse).collect(Collectors.toList()));
+        return ResponseEntity.ok(results.stream().map(InfrastructureMapper::toResponse).toList());
     }
 
     @GetMapping("/{id}")

@@ -1,6 +1,5 @@
 package com.dinosaur.infrastructure.in.scheduler;
 
-import java.time.LocalDateTime;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

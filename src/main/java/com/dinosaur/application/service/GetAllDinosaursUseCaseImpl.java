@@ -1,7 +1,6 @@
 package com.dinosaur.application.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.dinosaur.application.dto.DinosaurResult;
 import com.dinosaur.application.mapper.ApplicationMapper;
@@ -20,7 +19,7 @@ public class GetAllDinosaursUseCaseImpl implements GetAllDinosaursUseCase {
     @Override
     public List<DinosaurResult> execute() {
         List<Dinosaur> dinosaurs = dinosaurPersistencePort.findAll();
-        return dinosaurs.stream().map(ApplicationMapper::toResult).collect(Collectors.toList());
+        return dinosaurs.stream().map(ApplicationMapper::toResult).toList();
     }
     
 }
