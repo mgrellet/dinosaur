@@ -2,7 +2,7 @@
 
 Microservicio **Spring Boot** para un flujo **AMB** (Alta, Modificación, Baja) de dinosaurios. La lógica de negocio está aislada del framework siguiendo una **arquitectura hexagonal** (puertos y adaptadores): dominio en el centro, casos de uso alrededor, infraestructura en los bordes.
 
-**Stack:** Java 21, Spring Boot 3.5, PostgreSQL, RabbitMQ.
+**Stack:** Java 21, Spring Boot 3.5, PostgreSQL, RabbitMQ, OpenAPI 3 vía [springdoc-openapi](https://springdoc.org/) (Swagger UI).
 
 ---
 
@@ -14,8 +14,9 @@ Microservicio **Spring Boot** para un flujo **AMB** (Alta, Modificación, Baja) 
 4. [Cómo levantar el proyecto](#cómo-levantar-el-proyecto)
 5. [Configuración relevante](#configuración-relevante)
 6. [API REST](#api-rest)
-7. [RabbitMQ](#rabbitmq)
-8. [Cómo ejecutar los tests](#cómo-ejecutar-los-tests)
+7. [Documentación OpenAPI (Swagger UI)](#documentación-openapi-swagger-ui)
+8. [RabbitMQ](#rabbitmq)
+9. [Cómo ejecutar los tests](#cómo-ejecutar-los-tests)
 
 ---
 
@@ -56,7 +57,7 @@ flowchart LR
 |----------------|-----|
 | `com.dinosaur.domain` | Entidades de dominio (`Dinosaur`, `DinosaurStatus`), excepciones de negocio, **puertos de salida** (`DinosaurPersistencePort`, `DinosaurMessagingPort`). Sin dependencias de Spring ni JPA. |
 | `com.dinosaur.application` | **Puertos de entrada** (interfaces de casos de uso), implementaciones en `...service`, DTOs de aplicación (`DinosaurCommand`, `DinosaurResult`), mapeos. Orquesta el dominio y los puertos de salida. |
-| `com.dinosaur.infrastructure.in` | **Entrada:** REST (`DinosaurController`, DTOs, `GlobalExceptionHandler`), configuración Spring (`ApplicationConfig` enlaza beans de casos de uso), `RabbitMQConfig`, **scheduler** (`DinosaurStatusScheduler`) que dispara actualización periódica de estados. |
+| `com.dinosaur.infrastructure.in` | **Entrada:** REST (`DinosaurController`, DTOs, `GlobalExceptionHandler`), configuración Spring (`ApplicationConfig` enlaza beans de casos de uso), `OpenApiConfig` (metadatos OpenAPI / Swagger UI), `RabbitMQConfig`, **scheduler** (`DinosaurStatusScheduler`) que dispara actualización periódica de estados. |
 | `com.dinosaur.infrastructure.out` | **Salida:** persistencia JPA (`DinosaurJpaEntity`, repositorio, `DinosaurPersistenceAdapter`), mensajería (`RabbitMQAdapter`, mensajes hacia el exchange/cola configurados). |
 
 **Comportamiento destacado:** el scheduler ejecuta periódicamente el caso de uso que revisa dinosaurios al borde de extinción o extintos, actualiza estado y publica eventos en RabbitMQ. La expresión cron se define en `application.properties` (`scheduler.cron-expression`; por defecto en el repo suele ser cada minuto en desarrollo).
@@ -126,6 +127,7 @@ Valores por defecto en `src/main/resources/application.properties` (aptos para *
 - **RabbitMQ:** host implícito `localhost` (puerto `5672` por defecto del cliente Spring)
 - **Exchange / cola / routing key:** `rabbitmq.exchange`, `rabbitmq.queue`, `rabbitmq.routing-key`
 - **JPA:** `ddl-auto=update` (útil en desarrollo; revisar para entornos productivos)
+- **OpenAPI / Swagger UI:** `springdoc.api-docs.path` y ordenación de la UI en `application.properties` (ver [Documentación OpenAPI](#documentación-openapi-swagger-ui)).
 
 Para la **Opción A** (app dentro de Docker), `docker-compose.yml` define variables que Spring Boot interpreta y **sobrescriben** esos valores:
 
@@ -180,6 +182,23 @@ Si cambias puertos o credenciales en `docker-compose.yml`, actualiza las propied
 ### Eliminar
 
 `DELETE /dinosaur/{id}`
+
+---
+
+## Documentación OpenAPI (Swagger UI)
+
+Con la app en marcha (puerto **8080** por defecto):
+
+| Recurso | URL |
+|---------|-----|
+| **Swagger UI** (recomendada; sirve el bundle del webjar) | http://localhost:8080/swagger-ui/index.html |
+| **Atajo** (redirección habitual de springdoc) | http://localhost:8080/swagger-ui.html |
+| **Especificación OpenAPI (JSON)** | http://localhost:8080/v3/api-docs |
+| **Especificación OpenAPI (YAML)** | http://localhost:8080/v3/api-docs.yaml |
+
+Operaciones, códigos de respuesta y esquemas (`DinosaurRequest`, `DinosaurResponse`, `ApiError`) salen de las anotaciones OpenAPI 3 en el controlador y los DTOs. Tras cambiar dependencias, reconstruye la imagen Docker (`docker compose up --build`) para que el JAR incluya springdoc.
+
+En producción puedes desactivar la UI con `springdoc.swagger-ui.enabled=false` si no debe ser pública.
 
 ---
 
