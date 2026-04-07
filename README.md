@@ -172,7 +172,8 @@ Si cambias puertos o credenciales en `docker-compose.yml`, actualiza las propied
   "name": "T-Rex Modificado",
   "species": "Theropod",
   "discoveryDate": "1902-01-01T23:59:59",
-  "extinctionDate": "2026-12-31T23:59:59"
+  "extinctionDate": "2026-12-31T23:59:59",
+  "status": "ALIVE"
 }
 ```
 
