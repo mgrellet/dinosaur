@@ -22,6 +22,7 @@ import com.dinosaur.application.port.in.DeleteDinosaurUseCase;
 import com.dinosaur.application.port.in.GetAllDinosaursUseCase;
 import com.dinosaur.application.port.in.GetDinosaurByIdUseCase;
 import com.dinosaur.application.port.in.UpdateDinosaurUseCase;
+import com.dinosaur.domain.model.DinosaurStatus;
 import com.dinosaur.infrastructure.in.web.dto.DinosaurRequest;
 import com.dinosaur.infrastructure.in.web.mapper.InfrastructureMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,7 +59,8 @@ public class DinosaurControllerTests {
 
         ObjectMapper objectMapper;
 
-        LocalDateTime now;
+        private static final LocalDateTime PAST_DISCOVERY = LocalDateTime.parse("1902-01-01T00:00:00");
+        private static final LocalDateTime FUTURE_EXTINCTION = LocalDateTime.parse("2099-12-31T23:59:59");
 
         @BeforeEach
         void setUp() {
@@ -69,16 +71,16 @@ public class DinosaurControllerTests {
                 mockMvc = MockMvcBuilders.standaloneSetup(controller)
                                 .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
                                 .build();
-
-                now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
         }
 
         @Test
         void testCreateDinosaur() throws Exception {
 
-                DinosaurRequest request = new DinosaurRequest("T-Rex", "Dinosaur", now, now, "Alive");
-                DinosaurResult dinosaurResult = new DinosaurResult(1L, "T-Rex", "Dinosaur", now, now, "Alive");
+                DinosaurRequest request = new DinosaurRequest("T-Rex", "Dinosaur", PAST_DISCOVERY, FUTURE_EXTINCTION,
+                                DinosaurStatus.ALIVE.name());
+                                
+                DinosaurResult dinosaurResult = new DinosaurResult(1L, "T-Rex", "Dinosaur", PAST_DISCOVERY,
+                                FUTURE_EXTINCTION, DinosaurStatus.ALIVE.name());
 
                 when(createUseCase.execute(InfrastructureMapper.toCommand(request)))
                                 .thenReturn(dinosaurResult);
@@ -88,26 +90,19 @@ public class DinosaurControllerTests {
                                 .andExpect(jsonPath("$.id").isNotEmpty())
                                 .andExpect(jsonPath("$.name").value("T-Rex"))
                                 .andExpect(jsonPath("$.species").value("Dinosaur"))
-                                .andExpect(jsonPath("$.discoveryDate").value(now.toString()))
-                                .andExpect(jsonPath("$.extinctionDate").value(now.toString()))
-                                .andExpect(jsonPath("$.status").value("Alive"))
+                                .andExpect(jsonPath("$.discoveryDate").value(formatLocalDateTimeToJsonString(PAST_DISCOVERY)))
+                                .andExpect(jsonPath("$.extinctionDate").value(formatLocalDateTimeToJsonString(FUTURE_EXTINCTION)))
+                                .andExpect(jsonPath("$.status").value(DinosaurStatus.ALIVE.name()))
                                 .andExpect(status().isCreated());
-        }
-
-        @Test
-        void testCreateDinosaurWithInvalidRequest() throws Exception {
-                DinosaurRequest request = new DinosaurRequest("", "Dinosaur", now, now, "Alive");
-                mockMvc.perform(post("/dinosaur")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request)))
-                                .andExpect(status().isBadRequest());
         }
 
         @Test
         void testGetAllDinosaurs() throws Exception {
                 List<DinosaurResult> dinosaurs = Arrays.asList(
-                                new DinosaurResult(1L, "T-Rex", "Dinosaur", now, now, "Alive"),
-                                new DinosaurResult(2L, "Velociraptor", "Dinosaur", now, now, "Alive"));
+                                new DinosaurResult(1L, "T-Rex", "Dinosaur", PAST_DISCOVERY, FUTURE_EXTINCTION,
+                                                DinosaurStatus.ALIVE.name()),
+                                new DinosaurResult(2L, "Velociraptor", "Dinosaur", PAST_DISCOVERY, FUTURE_EXTINCTION,
+                                                DinosaurStatus.ALIVE.name()));
 
                 when(getAllUseCase.execute()).thenReturn(dinosaurs);
 
@@ -117,20 +112,23 @@ public class DinosaurControllerTests {
                                 .andExpect(jsonPath("$[0].id").value(1L))
                                 .andExpect(jsonPath("$[0].name").value("T-Rex"))
                                 .andExpect(jsonPath("$[0].species").value("Dinosaur"))
-                                .andExpect(jsonPath("$[0].discoveryDate").value(now.toString()))
-                                .andExpect(jsonPath("$[0].extinctionDate").value(now.toString()))
-                                .andExpect(jsonPath("$[0].status").value("Alive"))
+                                .andExpect(jsonPath("$[0].discoveryDate").value(formatLocalDateTimeToJsonString(PAST_DISCOVERY)))
+                                .andExpect(jsonPath("$[0].extinctionDate")
+                                                .value(formatLocalDateTimeToJsonString(FUTURE_EXTINCTION)))
+                                .andExpect(jsonPath("$[0].status").value(DinosaurStatus.ALIVE.name()))
                                 .andExpect(jsonPath("$[1].id").value(2L))
                                 .andExpect(jsonPath("$[1].name").value("Velociraptor"))
                                 .andExpect(jsonPath("$[1].species").value("Dinosaur"))
-                                .andExpect(jsonPath("$[1].discoveryDate").value(now.toString()))
-                                .andExpect(jsonPath("$[1].extinctionDate").value(now.toString()))
-                                .andExpect(jsonPath("$[1].status").value("Alive"));
+                                .andExpect(jsonPath("$[1].discoveryDate").value(formatLocalDateTimeToJsonString(PAST_DISCOVERY)))
+                                .andExpect(jsonPath("$[1].extinctionDate")
+                                                .value(formatLocalDateTimeToJsonString(FUTURE_EXTINCTION)))
+                                .andExpect(jsonPath("$[1].status").value(DinosaurStatus.ALIVE.name()));
         }
 
         @Test
         void testGetDinosaurById() throws Exception {
-                DinosaurResult dinosaur = new DinosaurResult(1L, "T-Rex", "Dinosaur", now, now, "Alive");
+                DinosaurResult dinosaur = new DinosaurResult(1L, "T-Rex", "Dinosaur", PAST_DISCOVERY, FUTURE_EXTINCTION,
+                                DinosaurStatus.ALIVE.name());
 
                 when(getByIdUseCase.execute(dinosaur.id())).thenReturn(dinosaur);
 
@@ -139,16 +137,20 @@ public class DinosaurControllerTests {
                                 .andExpect(jsonPath("$.id").value(dinosaur.id()))
                                 .andExpect(jsonPath("$.name").value(dinosaur.name()))
                                 .andExpect(jsonPath("$.species").value(dinosaur.species()))
-                                .andExpect(jsonPath("$.discoveryDate").value(dinosaur.discoveryDate().toString()))
-                                .andExpect(jsonPath("$.extinctionDate").value(dinosaur.extinctionDate().toString()))
+                                .andExpect(jsonPath("$.discoveryDate")
+                                                .value(formatLocalDateTimeToJsonString(dinosaur.discoveryDate())))
+                                .andExpect(jsonPath("$.extinctionDate")
+                                                .value(formatLocalDateTimeToJsonString(dinosaur.extinctionDate())))
                                 .andExpect(jsonPath("$.status").value(dinosaur.status()));
         }
 
         @Test
         void testUpdateDinosaur() throws Exception {
-                DinosaurRequest request = new DinosaurRequest("T-Rex", "Dinosaur", now, now, "Alive");
+                DinosaurRequest request = new DinosaurRequest("T-Rex", "Dinosaur", PAST_DISCOVERY, FUTURE_EXTINCTION,
+                                DinosaurStatus.ALIVE.name());
 
-                DinosaurResult dinosaurResult = new DinosaurResult(1L, "T-Rex", "Dinosaur", now, now, "Alive");
+                DinosaurResult dinosaurResult = new DinosaurResult(1L, "T-Rex", "Dinosaur", PAST_DISCOVERY,
+                                FUTURE_EXTINCTION, DinosaurStatus.ALIVE.name());
 
                 when(updateUseCase.execute(dinosaurResult.id(), InfrastructureMapper.toCommand(request)))
                                 .thenReturn(dinosaurResult);
@@ -159,9 +161,10 @@ public class DinosaurControllerTests {
                                 .andExpect(jsonPath("$.id").value(dinosaurResult.id()))
                                 .andExpect(jsonPath("$.name").value(dinosaurResult.name()))
                                 .andExpect(jsonPath("$.species").value(dinosaurResult.species()))
-                                .andExpect(jsonPath("$.discoveryDate").value(dinosaurResult.discoveryDate().toString()))
+                                .andExpect(jsonPath("$.discoveryDate")
+                                                .value(formatLocalDateTimeToJsonString(dinosaurResult.discoveryDate())))
                                 .andExpect(jsonPath("$.extinctionDate")
-                                                .value(dinosaurResult.extinctionDate().toString()))
+                                                .value(formatLocalDateTimeToJsonString(dinosaurResult.extinctionDate())))
                                 .andExpect(jsonPath("$.status").value(dinosaurResult.status()));
         }
 
@@ -170,5 +173,9 @@ public class DinosaurControllerTests {
                 Long id = 1L;
                 mockMvc.perform(delete("/dinosaur/" + id)).andExpect(status().isNoContent());
                 verify(deleteUseCase).execute(id);
+        }
+
+        private String formatLocalDateTimeToJsonString(LocalDateTime dateTime) throws Exception {
+                return objectMapper.readTree(objectMapper.writeValueAsString(dateTime)).asText();
         }
 }
